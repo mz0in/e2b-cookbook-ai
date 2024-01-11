@@ -1,6 +1,6 @@
 # AI developer connected to GitHub and its own cloud sandbox
 
-![Gif from developer](https://ntjfcwpzsxugrykskdgi.supabase.co/storage/v1/object/public/content-assets/1219_019.gif?t=2023-12-19T18%3A26%3A10.474Z)
+![Gif from developer](assets/run_example.gif)
 
 A custom AI assistant that can clone any GitHub repository to its remote cloud environment, work on the repo there, and then make pull request to GitHub.
 
@@ -16,7 +16,7 @@ The AI developer uses E2B sandboxes for the remote execution of tasks.
 
 ## How to start
 1. Clone this repository
-2. Open the [e2b-cookbook/guides/openai-assistant-py](./) directory
+2. Open the [e2b-cookbook/guides/ai-github-developer-py](./) directory
 3. Install dependencies:
 ```sh
 poetry install

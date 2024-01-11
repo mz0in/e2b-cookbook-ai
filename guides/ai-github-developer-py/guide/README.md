@@ -1,53 +1,54 @@
-# AI GitHub Developer (WIP guide) 
+# AI GitHub Developer
 
 ## Python guide with complete code
 
-![Cover image](https://ntjfcwpzsxugrykskdgi.supabase.co/storage/v1/object/public/content-assets/000.gif))
+![Gif example](assets/run_example.gif)
 
-We are E2B. We provide sandboxed cloud environments made for AI agents and AI apps. Try our Custom Sandboxes and support us on GitHub with a star if you like it. E2B sandboxes work with any LLM - we also support the new Assistants API.
+**We are [E2B](https://e2b.dev/?ref=cookbook-ai-github-developer). We are building a cloud runtime for AI agents. Try our [Custom Sandboxes](https://e2b.dev/docs/sandbox/templates/overview?ref=cookbook-ai-github-developer) and support us on [GitHub](https://github.com/e2b-dev/e2b?ref=cookbook-ai-github-developer) with a star if you like it. E2B sandboxes work with any LLM - we also support the new Assistants API.**
 
----
-
-> 🏁 **Final code:** [E2B Cookbook - OpenAI Assistant](https://github.com/e2b-dev/e2b-cookbook/tree/main/guides/openai-assistant-py/openai_assistant)
-
----
+> 🏁 **Final code:** [E2B Cookbook - AI GitHub Developer](https://github.com/e2b-dev/e2b-cookbook/tree/main/guides/ai-github-developer-py?ref=cookbook-ai-github-developer)
 
 ## What we will do
 
-In this guide, we will build a custom AI agent that will clone our GitHub repository to its remote cloud environment, work on the repo there, and then commit the changes to GitHub.
+In this guide, we build a custom AI developer that clones GitHub repository of your choice to its remote cloud environment, works on it, and then make a pull request with the changes.
 
-We will use the E2B Sandboxes for the remote execution of tasks, together with the Assistants API by OpenAI. The crucial concept from OpenAI we will use is Function Calling.
+We use E2B Sandboxes for the remote execution of AI developer's actions, and the OpenAI's Assistants API for the AI assistant.
 
-> You can find the final code [here](https://github.com/e2b-dev/e2b-cookbook/tree/main/guides/openai-assistant-py/openai_assistant) and an example of Next.js project  that the AI developer built [here](https://github.com/tizkovatereza/tt-app).
-. All links to particular parts of code in this post refer to the corresponding code on GitHub.
+> Find the complete final code [here](https://github.com/e2b-dev/e2b-cookbook/tree/main/guides/ai-github-developer-py?ref=cookbook-ai-github-developer). 🏁
+> 
+> [Here](https://github.com/tizkovatereza/tt-app?ref=cookbook-ai-github-developer) is an example of a Next.js project  that the AI developer built.
 
-![Video](https://ntjfcwpzsxugrykskdgi.supabase.co/storage/v1/object/public/content-assets/001.png?t=2023-12-19T18%3A23%3A30.331Z)
+![Cover pic](https://ntjfcwpzsxugrykskdgi.supabase.co/storage/v1/object/public/content-assets/AI_GitHub_Developer_v04.png?t=2023-12-20T14%3A27%3A03.702Z)
 
 ### Prerequisites
 
 We are using two key concepts:
-1. **OpenAI API** - Find your API key [here](https://platform.openai.com/api-keys), read the intro to the Assistants API, and Function Calling.
-2. **E2B Sandbox** - Find your (free) API key [here](https://e2b.dev/docs/getting-started/api-key), read the intro to the E2B Sandboxes.
-
-Sign up via E2B docs to get your free API key for using sandboxes.
-
----
+1. **OpenAI API** - Find your API key [here](https://platform.openai.com/api-keys), read the intro to the [Assistants API](https://platform.openai.com/docs/assistants/how-it-works), and [Function Calling](https://platform.openai.com/docs/guides/function-calling).
+2. **E2B Sandbox** - Find your free API key [here](https://e2b.dev/docs/getting-started/api-key?ref=cookbook-ai-github-developer), read how E2B sandboxes work [here](https://e2b.dev/docs/sandbox/overview?ref=cookbook-ai-github-developer).
 
 ![E2B API Key screenshot](https://ntjfcwpzsxugrykskdgi.supabase.co/storage/v1/object/public/content-assets/002.png?t=2023-12-19T18%3A23%3A46.378Z)
 
 ## 1. Create files
 
-We create three files - `main.py`, `assistant.py` for defining the assistant's behavior, and `actions.py` for defining actions (Python functions) it can use.
+Let's start with creating files:
 
----
+- [`main.py`](https://github.com/e2b-dev/e2b-cookbook/blob/main/guides/ai-github-developer-py/ai_github_developer/main.py?ref=cookbook-ai-github-developer) for the main program
+- [`assistant.py`](https://github.com/e2b-dev/e2b-cookbook/blob/main/guides/ai-github-developer-py/ai_github_developer/assistant.py?ref=cookbook-ai-github-developer) for defining AI developer's behavior
+- [`actions.py`](https://github.com/e2b-dev/e2b-cookbook/blob/main/guides/ai-github-developer-py/ai_github_developer/actions.py?ref=cookbook-ai-github-developer) for defining actions (Python functions) for the developer.
+  
+Prepare also `.env` file where you store your API keys.
 
 ## 2. Define actions for the assistant
 
-In the `actions.py` file, we will define Python functions as runnable actions for the AI assistant and the LLM.
+In the [`actions.py`](https://github.com/e2b-dev/e2b-cookbook/blob/main/guides/ai-github-developer-py/ai_github_developer/actions.py?ref=cookbook-ai-github-developer) file, we define Python functions as runnable actions for the AI assistant and the LLM.
 
-We first import the e2b Sandbox.
+First, let's import the E2B Sandbox and everything else we need.
 
-> Here we are using the default sandbox. For different use cases, we could use different custom sandboxes, for example, a code interpreter sandbox useful for advanced data analysis.
+> Here we are using the "default" E2B sandbox. For different use cases, we could use different custom sandboxes with extra packages. For example, a code interpreter sandbox useful for advanced data analysis, or a cloud browser sandbox.
+
+### 2.1 Import packages
+
+We use Python [`Rich` library](https://github.com/Textualize/rich) for formatting the terminal output of the program.
 
 ```python
 import os
@@ -58,7 +59,9 @@ from e2b import Sandbox
 from rich.console import Console
 from rich.theme import Theme
 ```
-We determine the directory where we clone the repo in the sandbox. We pick theme for printing the sandbox actions.
+### 2.2 Print sandbox actions
+
+We determine the directory where the AI developer will clone the user's repo in the sandbox. We add a way to print what is going on in the sandbox (and pick a theme for the prints, using `Rich`).
 
 ```python
 REPO_DIRECTORY = "/home/user/repo"
@@ -71,28 +74,34 @@ custom_theme = Theme(
 
 console = Console(theme=custom_theme)
 
+
 def print_sandbox_action(action_type: str, action_message: str):
     console.print(
         f"[sandbox_action] [Sandbox Action][/sandbox_action] {action_type}: {action_message}"
     )
 ```
-Then we define actions. Each action corresponds to one OpenAI Function that the assistant is equipped with (see the next steps.)
+### 2.3 Specify actions for AI developer
 
-We are defining six actions in total which allow us:
-1. Create directory in the remote sandbox such that the assistant can work on the cloned repo
+Then we define actions that the AI developer can use. You can later modify the program by adding more actions for your specific use case in the same principle. We are adding actions that allow the AI developer the following:
+
+1. Create a directory in the remote sandbox
 2. Save content (e.g., code) to a file
 3. List files in a directory
-4. Read files' content
+4. Read files content
 5. Commit changes
 6. Make a pull request
 
-> Modify the program by adding more actions for your specific use case in the same principle.
 
-Actions are Python functions that will be executed remotely in the sandbox by the AI assistant. For each we need to specify arguments, and add a string indicating success or an error message.
+> "Actions" are Python functions automatically called in the program by E2B SDK. Inside the actions
+> Each action corresponds to exactly one OpenAI Function (see the next steps of the guide).
+
+For each action, we need to specify arguments and add printing of relevant information. For example, for `list_files` it makes sense to return a list of files within the folder.
+Inside actions, various operations are called within the sandbox.
 
 ```python
+# List of actions for the assistant
 def create_directory(sandbox: Sandbox, args: Dict[str, Any]) -> str:
-    directory = args["directory"]
+    directory = args["path"]
     print_sandbox_action("Creating directory", directory)
 
     try:
@@ -142,7 +151,7 @@ def read_file(sandbox: Sandbox, args: Dict[str, Any]) -> str:
 
 def commit(sandbox: Sandbox, args: Dict[str, Any]) -> str:
     repo_directory = "/home/user/repo"
-    commit_message = args["commit_message"]
+    commit_message = args["message"]
     print_sandbox_action("Committing with the message", commit_message)
 
     git_add_proc = sandbox.process.start_and_wait(f"git -C {repo_directory} add .")
@@ -164,27 +173,26 @@ def commit(sandbox: Sandbox, args: Dict[str, Any]) -> str:
 
 def make_pull_request(sandbox: Sandbox, args: Dict[str, Any]) -> str:
     base_branch = "main"
-
     random_letters = "".join(random.choice(string.ascii_letters) for _ in range(5))
-    new_branch = f"ai-developer-{random_letters}"
+    new_branch_name = f"ai-developer-{random_letters}"
 
     title = args["title"]
-    body = args["body"]
+    body = ""
 
     print_sandbox_action(
-        "Making a pull request", f"from '{new_branch}' to '{base_branch}'"
+        "Making a pull request", f"from '{new_branch_name}' to '{base_branch}'"
     )
 
     git_checkout_proc = sandbox.process.start_and_wait(
-        f"git -C {REPO_DIRECTORY} checkout -b {new_branch}"
+        f"git -C {REPO_DIRECTORY} checkout -b {new_branch_name}"
     )
     if git_checkout_proc.exit_code != 0:
-        error = f"Error creating a new git branch {new_branch}: {git_checkout_proc.stdout}\n\t{git_checkout_proc.stderr}"
+        error = f"Error creating a new git branch {new_branch_name}: {git_checkout_proc.stdout}\n\t{git_checkout_proc.stderr}"
         console.print("\t[bold red]Error:[/bold red]", error)
         return error
 
     git_push_proc = sandbox.process.start_and_wait(
-        f"git -C {REPO_DIRECTORY} push -u origin {new_branch}"
+        f"git -C {REPO_DIRECTORY} push -u origin {new_branch_name}"
     )
     if git_push_proc.exit_code != 0:
         error = (
@@ -194,7 +202,9 @@ def make_pull_request(sandbox: Sandbox, args: Dict[str, Any]) -> str:
         return error
 
     gh_pull_request_proc = sandbox.process.start_and_wait(
-        cmd=f"gh pr create --base {base_branch} --head {new_branch} --title '{title}' --body '{body}'",
+        cmd=f'gh pr create --base "{base_branch}" --head "{new_branch_name}" --title "{title}" --body "{body}"'.replace(
+            "`", "\\`"
+        ),
         cwd=REPO_DIRECTORY,
     )
     if gh_pull_request_proc.exit_code != 0:
@@ -205,14 +215,12 @@ def make_pull_request(sandbox: Sandbox, args: Dict[str, Any]) -> str:
     return "success"
 ```
 
-## 3. Define the assistant
-Now we create the assistant itself inside the assistant.py. The specific feature of the OpenAI's Assistants API that we'll take advantage of is the [Function calling](https://platform.openai.com/docs/guides/function-calling).
+## 3. Build the assistant
+Now we create the AI developer itself inside the [`assistant.py`](https://github.com/e2b-dev/e2b-cookbook/blob/main/guides/ai-github-developer-py/ai_github_developer/assistant.py?ref=cookbook-ai-github-developer). The specific feature of the OpenAI's Assistants API that we'll take advantage of is [Function calling](https://platform.openai.com/docs/guides/function-calling).
 
-> Function calling feature gives our AI assistant the ability to decide to call the sandbox actions we defined before.
+> Function calling feature gives our AI assistant the ability to decide to call the sandbox actions we defined in the [`actions.py`](https://github.com/e2b-dev/e2b-cookbook/blob/main/guides/ai-github-developer-py/ai_github_developer/actions.py?ref=cookbook-ai-github-developer).
 >
-Here we also give instructions to the assistant and choose its parameters. Once we run this file, it prints the assistant's ID which we can save as an environment variable. 
-
-We start with importing packages.
+### 3.1 Import packages
 ```python
 from typing import List
 
@@ -222,9 +230,8 @@ from openai.types.beta.assistant_create_params import Tool
 
 load_dotenv()
 ```
-Then we define the assistant and equip it with six functions (remember, these are the OpenAI Functions, not Python functions) where each corresponds to one action defined previously in the `actions.py`.
-
-> The system message is vital for the assistant's behavior. It determines whether the assistant discusses problems with you or directly performs tasks. Adjust it as needed.
+### 3.2 Define the assistant
+Now we create the assistant and equip it with six functions (remember, these are the OpenAI Functions, not Python functions) where each corresponds to one action defined previously in the `actions.py`.
 
 ```python
 def create_assistant():
@@ -331,18 +338,22 @@ def create_assistant():
                         "title": {
                             "type": "string",
                             "description": "The title of the pull request",
-                        },
-                        "body": {
-                            "type": "string",
-                            "description": "The description of the pull request",
-                        },
+                        }
                     },
-                    "required": ["title", "body"],
+                    "required": ["title"],
                 },
             },
         },
     ]
+```
+### 3.3 Write system prompt
+Still inside the `create_assistant()` function, we give instructions to the assistant and choose its parameters. Once we run this file, it prints the assistant's ID which we can save as an environment variable.
+Don't forget to re-run the file with assistant and create new ID every time you update it.
 
+> 💡 **Tip**: Adjust the instructions as needed. For example, you can decide how much the AI developer engages in discussion with user vs limiting itself to performing given task. 
+> The OpenAI's [**prompt engineering guide**](https://platform.openai.com/docs/guides/prompt-engineering/six-strategies-for-getting-better-results) may come handy.
+
+```python
     ai_developer = client.beta.assistants.create(
         instructions="""You are an AI developer. You help user work on their tasks related to coding in their codebase. The provided codebase is in the /home/user/repo.
     When given a coding task, work on it until completion, commit it, and make pull request.
@@ -352,7 +363,7 @@ def create_assistant():
     You can create and save content (text or code) to a specified file (or create a new file), list files in a given directory, read files, commit changes, and make pull requests. Always make sure to write the content in the codebase.
 
     By default, always either commit your changes or make a pull request after performing any action on the repo. This helps in reviewing and merging your changes.
-    Name and describe the PR based on the changes you made. You can use markdown in the PR's body
+    Name the PR based on the changes you made.
 
     Be professional, avoid arguments, and focus on completing the task.
 
@@ -371,14 +382,13 @@ def create_assistant():
 
 if __name__ == "__main__":
     create_assistant()
-
 ```
 
-## 4. Create the main.py
-Now we create the main program for running our assistant in the sandbox.
+## 4. Create the main program
+Now we code the core program. The assistant calls OpenAI Functions through JSON, which the E2B SDK parses and automatically invokes defined actions.
 
-### Import packages
-First, we import the necessary packages - openai, e2b Sandbox, and the actions we created in the other file.
+### 4.1 Import packages
+First, we import the necessary packages - `openai`, `e2b Sandbox`, and the actions we created in the other file.
 
 ```python
 import os
@@ -386,7 +396,7 @@ from dotenv import load_dotenv
 from e2b import Sandbox
 import openai
 import time
-from openai_assistant.actions import (
+from ai_github_developer.actions import (
     create_directory,
     read_file,
     save_content_to_file,
@@ -413,8 +423,8 @@ custom_theme = Theme(
 )
 console = Console(theme=custom_theme)
 ```
-### Retrieve assistant
-We call the assistant using its ID. Then we use the OpenAI API to retrieve the assistant.
+### 4.2 Retrieve assistant
+We call the assistant using its ID and use the OpenAI API to retrieve the assistant. Don't forget to save assistant's ID, OpenAI API key and E2B API key as environment variables.
 
 ```python
 load_dotenv()
@@ -426,18 +436,15 @@ USER_GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 assistant = client.beta.assistants.retrieve(AI_ASSISTANT_ID)
 ```
 
-### Prompt user for GitHub repo, authentication, and task
+### 4.2 Prompt user for GitHub repo, authentication, and task
 We define three functions that ask the user for
 - GitHub repository URL
-- Specifying the task for the AI agent (e.g., "Please write a code for printing first 100 number of a Fibonacci sequence into a "code.py" file)
-- Providing the GitHub authentication token.
+- Specifying the task for the AI agent (e.g., "Please create a calculator in JavaScript and save it to new file")
+- GitHub authentication token.
 
-> We ask user to provide their GitHub [personal access token (classic)](https://github.com/settings/tokens) to securely interact with the GitHub API.
+> The user is asked for their GitHub [personal access token (classic)](https://github.com/settings/tokens) as a standard way to securely interact with the GitHub API.
 
-
-![HTTPS code](https://ntjfcwpzsxugrykskdgi.supabase.co/storage/v1/object/public/content-assets/003.png)
-
-Then we set up the repo_directoryto be "/home/user/repo". This is the path in the sandbox where the repository will be cloned and where the assistant will work on the given task.
+> 💡 **Tip**: Save your GitHub token as `GITHUB_TOKEN` in your `.env` file to avoid having to paste it every time you run the program.
 
 ```python
 def prompt_user_for_github_repo():
@@ -474,7 +481,8 @@ def prompt_user_for_auth():
 
 ```
 
-### Setup git
+### 4.3 Setup git
+We set up the Git configuration and authentication for user's account within the specified sandbox environment. It involves configuring the user's email and name, logging in with a GitHub personal access token, and setting up Git credentials for GitHub. To monitor the process, we add printing exit codes in each step.
 ```python
 def setup_git(sandbox):
     print("Logging into GitHub...")
@@ -504,7 +512,8 @@ def setup_git(sandbox):
     else:
         print("\n✅ [#666666]Logged in[/#666666]")
 ```
-### Clone the repo and print sandbox messages
+### 4.4 Clone the repo
+Use the sandbox environment to execute a Git clone command and check if the process was successful. We define a way to print the standard output or standard error output from the sandbox (with a specific visual theme).
 ```python
 def clone_repo_in_sandbox(sandbox, repo_url):
     # Clone the repo
@@ -524,18 +533,20 @@ def handle_sandbox_stderr(message):
     console.print(f"[theme][Sandbox][/theme] {message.line}")
 ```
 
-### Spawn the sandbox
-Now we can define the mainfunction to spawn the E2B sandbox.
+### 4.5 Spawn the sandbox
+Now we can define the `main` function to spawn the E2B sandbox.
 
-![Assistants API OpenAI](https://ntjfcwpzsxugrykskdgi.supabase.co/storage/v1/object/public/content-assets/004.png?t=2023-12-19T18%3A24%3A46.208Z)
+Inside the function, we choose the preferred E2B sandbox, which is called simply "`Sandbox`", since we chose the default one.
 
-Inside the function, we choose the preferred sandbox. 
-
-> E2B offers premade sandboxes or an option to build your own custom one with preferred packages, but here, it's enough to use the Default Sandbox and equip it with just the actions we have defined in the `actions.py`. 
+> 💡 **Tip**: E2B offers [premade sandboxes](https://e2b.dev/docs/sandbox/templates/premade?ref=cookbook-ai-github-developer) or an option to build your own [custom](https://e2b.dev/docs/sandbox/templates/overview?ref=cookbook-ai-github-developer) one with preferred packages. To keep this guide simple, we picked the Default Sandbox and equipped it with just the actions we have defined in the [`actions.py`](https://github.com/e2b-dev/e2b-cookbook/blob/main/guides/ai-github-developer-py/ai_github_developer/actions.py?ref=cookbook-ai-github-developer). 
 
 We use a `sandbox.add_action()` method to register the actions with the sandbox.
 We start the sandbox and configure the AI assistant in git. We log the user to GitHub via the authentication token.
 We assign the user's task to the assistant. Then we create a thread, send messages to the thread, and finally run the thread.
+
+We register actions with the sandbox using a `sandbox.add_action()` method. We start the sandbox, configure the AI developer in Git, and ask the user for GitHub token, if they haven't added it as environment variable already.
+
+Then, we assign the user's task to the assistant, create and run a thread to send messages to complete the task.
 
 > Here, we are using the OpenAI's concept of threads, messages and runs.
 
@@ -558,7 +569,7 @@ def main():
     else:
         print("\n✅ [#666666]GitHub token loaded[/#666666]\n")
 
-    # Setup git right away so user knows immediatelly if they passed wrong token
+    # Setup git right away so user knows immediately if they passed wrong token
     setup_git(sandbox)
 
     # Clone repo
@@ -581,12 +592,16 @@ def main():
             thread_id=thread.id, assistant_id=assistant.id
         )
 ```
+The threads, messages and runs are concept from the OpenAI's Assistants API:
 
-Still  inside the main function, we print the assistant's process to the terminal. Each time it chooses to use one of the actions, we see in the terminal how it uses the action and whether it ends with success or error.
+![Assistants API OpenAI](https://ntjfcwpzsxugrykskdgi.supabase.co/storage/v1/object/public/content-assets/004.png?t=2023-12-19T18%3A24%3A46.208Z)
 
-![Assistants status](https://ntjfcwpzsxugrykskdgi.supabase.co/storage/v1/object/public/content-assets/005.png?t=2023-12-19T18%3A24%3A58.324Z)
+### 4.6 Print assistant's runs
+Still  inside the main function, we print the assistant's process to the terminal. Each time the developer chooses to use one of the actions, user can see logs about the chosen action and its success/fail in terminal.
 
-> Note: If the assistant is "queued", we are waiting for OpenAI's processes.
+> Note: The assistant's runs duration is by huge part determined by OpenAI.
+
+At the end, we use `time.sleep()` to specify how often we want to poll assistant's status.
 
 ```python
  spinner = ""
@@ -641,11 +656,20 @@ if __name__ == "__main__":
 
 ## Output
 
-> 🏁 Final code: [E2B Cookbook - OpenAI Assistant](https://github.com/e2b-dev/e2b-cookbook/tree/main/guides/openai-assistant-py/openai_assistant)
+> Find the complete final code [here](https://github.com/e2b-dev/e2b-cookbook/tree/main/guides/ai-github-developer-py?ref=cookbook-ai-github-developer). 🏁
 > 
-> Example of Next.js project  that the AI developer built: [Repository](https://github.com/tizkovatereza/tt-app)
+> [Here](https://github.com/tizkovatereza/tt-app?ref=cookbook-ai-github-developer) is an example of a Next.js project bootstrapped with `create-next-app` that the AI developer built.
 
+![Gif example](assets/run_example.gif)
 
-Here is an example of my assistant working on simple tasks - writing me a README, and creating a new file with a simple JavaScript code.
+---
+**Thank you for reading this guide - and I will appreciate your feedback!**
 
-![Assistants status](https://ntjfcwpzsxugrykskdgi.supabase.co/storage/v1/object/public/content-assets/1219_019.gif?t=2023-12-19T18%3A26%3A10.474Z)
+Reach out to me on my [X (Twitter)](https://twitter.com/tereza_tizkova).
+
+**Where to find E2B:**
+- 💻 [Website](https://e2b.dev?ref=cookbook-ai-github-developer)
+- 🎮 [Discord server](https://discord.com/invite/U7KEcGErtQ?ref=cookbook-ai-github-developer)
+- 📝 [Docs](https://e2b.dev/docs?ref=cookbook-ai-github-developer)
+- 🧑🏼‍💻 [GitHub](https://github.com/e2b-dev/e2b?ref=cookbook-ai-github-developer)
+- 💬 [X (Twitter)](https://twitter.com/e2b_dev?ref=cookbook-ai-github-developer)

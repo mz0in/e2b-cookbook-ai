@@ -18,7 +18,6 @@ from rich.console import Console
 from rich.theme import Theme
 from rich.prompt import Prompt
 
-
 class MyPrompt(Prompt):
     prompt_suffix = ""
 
@@ -41,6 +40,7 @@ assistant = client.beta.assistants.retrieve(AI_ASSISTANT_ID)
 
 
 def prompt_user_for_github_repo():
+    global user_repo
     user_repo = MyPrompt.ask(
         "\nWhat GitHub repo do you want to work in? Specify it like this: [bold #E0E0E0]your_username/your_repo_name[/bold #E0E0E0].\n> "
     )
@@ -86,7 +86,7 @@ def setup_git(sandbox):
         f"echo {USER_GITHUB_TOKEN} | gh auth login --with-token"
     )
     if proc.exit_code != 0:
-        print("Error: Unable to log into GitHub", end="\n")
+        print("[bold #FF0000][Sandbox] [/bold #FF0000]Error: Unable to log into GitHub", end="\n")
         print(proc.stderr)
         print(proc.stdout)
         exit(1)
@@ -94,7 +94,7 @@ def setup_git(sandbox):
     # Setup user's Git credentials
     proc = sandbox.process.start_and_wait("gh auth setup-git")
     if proc.exit_code != 0:
-        print("Error: Unable to set up Git auth with GitHub")
+        print("[bold #FF0000][Sandbox] [/bold #FF0000]Error: Unable to set up Git auth with GitHub")
         print(proc.stderr)
         print(proc.stdout)
         exit(1)
@@ -108,7 +108,7 @@ def clone_repo_in_sandbox(sandbox, repo_url):
         f"git clone {repo_url} {REPO_DIRECTORY}"
     )
     if git_clone_proc.exit_code != 0:
-        print("Error: Unable to clone the repo")
+        print("[bold #FF0000][Sandbox] [/bold #FF0000]Error: Unable to clone the repo")
         exit(1)
 
 
